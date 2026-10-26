@@ -1,0 +1,4 @@
+# Generated databases and caches — never committed.
+*.db
+__pycache__/
+.pytest_cache/
