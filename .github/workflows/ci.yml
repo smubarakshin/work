@@ -1,4 +1,17 @@
-name: Playwright Tests
+# CI for the work repo (post–Variant A layout: framework files at the repo root).
+#
+# Drop in as .github/workflows/ci.yml, replacing the current file.
+# The Playwright job is unchanged in behaviour (same steps as the live
+# file after the 2026-10-26 move: npm install, no npm cache, root paths).
+# The only addition is the data-validation job below it.
+#
+# Do NOT add `python3 validator.py` on sample.db as a gate: the seeded
+# database intentionally contains 10 defects, so the validator exits 1
+# there by design. The pytest suite already asserts that behaviour, and
+# the smoke step below runs the validator against the CLEAN database,
+# where exit 0 is expected.
+
+name: CI
 
 on:
   push:
@@ -7,7 +20,7 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  playwright:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
@@ -18,6 +31,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          # No npm cache: there is no package-lock.json in the repo,
+          # and `npm ci` would fail without one.
 
       - name: Install dependencies
         run: npm install
@@ -43,3 +58,29 @@ jobs:
           name: test-results
           path: test-results/
           retention-days: 30
+
+  data-validation:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pytest
+        working-directory: data-validation
+        run: python -m pip install pytest
+
+      - name: Run data-validation tests
+        working-directory: data-validation
+        run: python -m pytest -v
+
+      - name: Smoke-check the validator on clean data
+        working-directory: data-validation
+        run: |
+          python build_db.py --clean
+          python validator.py --db clean.db
