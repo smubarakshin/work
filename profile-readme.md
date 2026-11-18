@@ -21,7 +21,7 @@
 
 ## Featured projects
 
-- **🎭 [playwright-qa-framework](./playwright-qa-framework)** — Playwright + TypeScript framework
+- **🎭 [playwright-qa-framework](https://github.com/smubarakshin/work)** — Playwright + TypeScript framework
   built on the Page Object Model: a full SauceDemo purchase flow (login → cart → checkout)
   plus a JSONPlaceholder REST API suite, with GitHub Actions CI and HTML reporting.
 - **🔌 API testing toolkit** — contract and schema validation for REST APIs, integrated into
